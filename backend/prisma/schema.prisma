@@ -1,0 +1,196 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id              String         @id @default(uuid())
+  phoneNumber     String         @unique
+  otp             String?
+  otpExpiry       DateTime?
+  isVerified      Boolean        @default(false)
+  points          Int            @default(0)
+  balance         Decimal        @default(0) @db.Decimal(10, 2)
+  referralCode    String         @unique
+  referredBy      String?        @map("referred_by")
+  deviceId        String?        @map("device_id")
+  lastLogin       DateTime?      @map("last_login")
+  isActive        Boolean        @default(true)
+  isBanned        Boolean        @default(false)
+  role            String         @default("user") // user, admin
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  
+  // Relations
+  transactions    Transaction[]
+  quizAttempts    QuizAttempt[]
+  taskSubmissions TaskSubmission[]
+  dailyLogins     DailyLogin[]
+  referrals       User[]         @relation("UserReferrals")
+  referrer        User?          @relation("UserReferrals", fields: [referredBy], references: [referralCode])
+  processedTasks  TaskSubmission[] @relation("ProcessedTasks")
+  accounts        Account[]
+  
+  @@map("users")
+}
+
+// Quiz model
+model Quiz {
+  id          String      @id @default(uuid())
+  question    String
+  answer      Boolean
+  difficulty  String      @default("easy") // easy, medium, hard
+  points      Int         @default(1)
+  // Monetary impact per question in minor units (e.g., birr * 100)
+  weightMinor Int         @default(100) @map("weight_minor")
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  
+  // Relations
+  attempts    QuizAttempt[]
+  
+  @@map("quizzes")
+}
+
+// Quiz Attempt model
+model QuizAttempt {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  quizId      String    @map("quiz_id")
+  isCorrect   Boolean   @map("is_correct")
+  pointsEarned Int       @default(0) @map("points_earned")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  
+  // Relations
+  user        User      @relation(fields: [userId], references: [id])
+  quiz        Quiz      @relation(fields: [quizId], references: [id])
+  
+  @@map("quiz_attempts")
+}
+
+// Transaction model
+model Transaction {
+  id              String        @id @default(uuid())
+  userId          String        @map("user_id")
+  type            String        // deposit, withdrawal, quiz, referral, bonus
+  amount          Decimal       @db.Decimal(10, 2)
+  status          String        @default("pending") // pending, completed, failed, cancelled
+  reference       String        @unique
+  description     String?
+  metadata        Json?         // Additional data like payment provider response
+  processedAt     DateTime?     @map("processed_at")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  
+  // Relations
+  user            User          @relation(fields: [userId], references: [id])
+  
+  @@map("transactions")
+}
+
+// Task model
+model Task {
+  id              String            @id @default(uuid())
+  title           String
+  description     String?
+  type            String            // watch_ad, subscribe, upload_photo, join_link
+  reward          Decimal           @default(0) @db.Decimal(10, 2)
+  isActive        Boolean           @default(true)
+  metadata        Json?             // Additional data like link, channel, etc.
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  
+  // Relations
+  submissions     TaskSubmission[]
+  
+  @@map("tasks")
+}
+
+// Task Submission model
+model TaskSubmission {
+  id              String        @id @default(uuid())
+  taskId          String        @map("task_id")
+  userId          String        @map("user_id")
+  status          String        @default("pending") // pending, approved, rejected
+  proof           String?       // URL or ID of the proof
+  rejectionReason String?       @map("rejection_reason")
+  processedAt     DateTime?     @map("processed_at")
+  processedById   String?       @map("processed_by")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  
+  // Relations
+  task            Task          @relation(fields: [taskId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
+  processedBy     User?         @relation("ProcessedTasks", fields: [processedById], references: [id])
+  
+  @@map("task_submissions")
+}
+
+// Daily Login model for tracking consecutive logins
+model DailyLogin {
+  id              String    @id @default(uuid())
+  userId          String    @map("user_id")
+  loginDate       DateTime  @default(now()) @map("login_date")
+  streak          Int       @default(1)
+  
+  // Relations
+  user            User      @relation(fields: [userId], references: [id])
+  
+  @@unique([userId, loginDate])
+  @@map("daily_logins")
+}
+
+// Ledger models for accurate money accounting
+
+enum AccountType {
+  user_wallet
+  platform_liability
+  deposits_incoming
+  withdrawals_outgoing
+}
+
+model Account {
+  id        String      @id @default(uuid())
+  type      AccountType
+  userId    String?
+  user      User?       @relation(fields: [userId], references: [id])
+  createdAt DateTime    @default(now()) @map("created_at")
+  lines     LedgerLine[]
+
+  @@unique([type, userId], name: "type_userId")
+  @@index([type, userId])
+  @@map("accounts")
+}
+
+model LedgerEntry {
+  id              String      @id @default(uuid())
+  idempotencyKey  String      @unique @map("idempotency_key")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  meta            Json?
+  lines           LedgerLine[]
+
+  @@map("ledger_entries")
+}
+
+model LedgerLine {
+  id         String      @id @default(uuid())
+  entryId    String      @map("entry_id")
+  accountId  String      @map("account_id")
+  debitMinor Int         @default(0) @map("debit_minor")
+  creditMinor Int        @default(0) @map("credit_minor")
+
+  entry      LedgerEntry @relation(fields: [entryId], references: [id])
+  account    Account     @relation(fields: [accountId], references: [id])
+
+  @@map("ledger_lines")
+}
