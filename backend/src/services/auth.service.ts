@@ -136,7 +136,8 @@ export class AuthService {
           referralCode: true,
           isVerified: true,
           createdAt: true,
-          lastLogin: true
+          lastLogin: true,
+          role: true
         }
       });
       

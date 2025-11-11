@@ -1,7 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Home, Wallet, ListTodo, Users, User } from 'lucide-react';
-import Header from './Header';
 
 const Layout: React.FC<{ page?: React.ReactElement }> = ({ page }) => {
   const location = useLocation();
@@ -16,7 +15,6 @@ const Layout: React.FC<{ page?: React.ReactElement }> = ({ page }) => {
   
   return (
     <div className="min-h-screen flex flex-col bg-army-900">
-      <Header />
       <main className="flex-1 pb-20">
         {page ?? <Outlet />}
       </main>
