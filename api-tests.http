@@ -1,0 +1,66 @@
+### QuizBirr API Testing
+### Base URL
+@baseUrl = http://localhost:5050/api
+
+### 1. Send OTP (Register/Login)
+POST {{baseUrl}}/auth/send-otp
+Content-Type: application/json
+
+{
+  "phoneNumber": "+251912345678"
+}
+
+### 2. Verify OTP (Complete Login)
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: application/json
+
+{
+  "phoneNumber": "+251912345678",
+  "otp": "123456"
+}
+
+### 3. Get Profile (Requires Auth Token)
+GET {{baseUrl}}/auth/profile
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 4. Get Quiz Stats
+GET {{baseUrl}}/quiz/stats
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 5. Get Random Quiz
+GET {{baseUrl}}/quiz/random
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 6. Submit Quiz Answer
+POST {{baseUrl}}/quiz/submit
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "quizId": "quiz-id-here",
+  "answer": true
+}
+
+### 7. Get Wallet Balance
+GET {{baseUrl}}/wallet/balance
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 8. Get Transactions
+GET {{baseUrl}}/wallet/transactions
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 9. Admin - Get All Quizzes (Admin Only)
+GET {{baseUrl}}/quiz/all
+Authorization: Bearer ADMIN_TOKEN_HERE
+
+### 10. Admin - Create Quiz (Admin Only)
+POST {{baseUrl}}/quiz
+Content-Type: application/json
+Authorization: Bearer ADMIN_TOKEN_HERE
+
+{
+  "question": "Is the sky blue?",
+  "correctAnswer": true,
+  "points": 10,
+  "category": "general"
+}
