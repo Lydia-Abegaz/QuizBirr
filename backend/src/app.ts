@@ -15,8 +15,10 @@ type EnvSchema = {
   TELEBIRR_WEBHOOK_SECRET?: string;
 };
 
-// Load environment variables from project root .env
-config({ path: path.resolve(__dirname, '..', '..', '.env') });
+// Load environment variables from project root .env only in development
+if (process.env.NODE_ENV !== 'production') {
+  config({ path: path.resolve(__dirname, '..', '..', '.env') });
+}
 
 // Validate environment variables
 const envSchema = z.object({
