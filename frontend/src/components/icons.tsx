@@ -40,7 +40,7 @@ export const HelpCircle: React.FC<IconProps> = ({ size = 24, className = "" }) =
   >
     <circle cx="12" cy="12" r="10"></circle>
     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-    <point x="12" y="17"></point>
+    <circle cx="12" cy="17" r="1"></circle>
   </svg>
 );
 
