@@ -85,7 +85,9 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // API routes
+console.log('Loading API routes...');
 app.use('/api', routes);
+console.log('API routes loaded successfully');
 
 // 404 handler
 app.use((req: Request, res: Response) => {
