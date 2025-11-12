@@ -1,7 +1,11 @@
 import axios from 'axios';
 import type { ApiResponse } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5050/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://quizbirr-api.onrender.com/api';
+
+// Debug logging
+console.log('Environment VITE_API_URL:', import.meta.env.VITE_API_URL);
+console.log('Using API_BASE_URL:', API_BASE_URL);
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
