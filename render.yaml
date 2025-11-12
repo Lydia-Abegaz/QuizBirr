@@ -10,6 +10,10 @@ services:
         value: production
       - key: PORT
         value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: quizbirr-db
+          property: connectionString
       - key: JWT_SECRET
         generateValue: true
       - key: TELEBIRR_WEBHOOK_SECRET
