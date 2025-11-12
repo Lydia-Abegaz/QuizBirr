@@ -1,5 +1,5 @@
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, HelpCircle, ListTodo, Users } from 'lucide-react';
+import { LayoutDashboard, HelpCircle, ListTodo, Users } from '../../components/icons';
 
 const AdminDashboard = () => {
   return (

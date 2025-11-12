@@ -1,18 +1,5 @@
 import { app, env } from './app';
-import { PrismaClient } from '@prisma/client';
-
-export const prisma = new PrismaClient();
-
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-  await prisma.$disconnect();
-  process.exit(0);
-});
-
-process.on('SIGINT', async () => {
-  await prisma.$disconnect();
-  process.exit(0);
-});
+import { prisma } from './lib/prisma';
 
 // Initialize database connection
 const initializeDatabase = async () => {

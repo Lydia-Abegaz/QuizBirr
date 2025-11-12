@@ -1,7 +1,6 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { ledgerService } from './ledger.service';
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
 
 export class QuizService {
   async getRandomQuiz(userId: string) {

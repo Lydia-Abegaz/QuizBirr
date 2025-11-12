@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { quizApi } from '../lib/api';
 import SwipeCard from '../components/SwipeCard';
-import { ArrowLeft, Trophy } from 'lucide-react';
+import { ArrowLeft, Trophy } from '../components/icons';
 import type { Quiz, QuizResult } from '../types';
 
 const QuizPage = () => {

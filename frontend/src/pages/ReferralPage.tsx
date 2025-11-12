@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { referralApi } from '../lib/api';
-import { Copy, Users, TrendingUp, Gift } from 'lucide-react';
+import { Copy, Users, TrendingUp, Gift } from '../components/icons';
 
 const ReferralPage = () => {
   const { data: statsData } = useQuery({

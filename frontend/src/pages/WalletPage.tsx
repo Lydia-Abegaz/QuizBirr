@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { walletApi } from '../lib/api';
-import { ArrowDownCircle, ArrowUpCircle, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowDownCircle, ArrowUpCircle, Clock, CheckCircle, XCircle } from '../components/icons';
 
 const WalletPage = () => {
   const [showDeposit, setShowDeposit] = useState(false);

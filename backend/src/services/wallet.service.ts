@@ -1,8 +1,7 @@
-import { PrismaClient, Prisma } from '@prisma/client';
 import crypto from 'crypto';
+import { Prisma } from '@prisma/client';
 import { ledgerService } from './ledger.service';
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
 
 export class WalletService {
   async getBalance(userId: string) {

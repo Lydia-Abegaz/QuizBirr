@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { authApi } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
-import { Mail } from 'lucide-react';
+import { Mail } from '../components/icons';
 
 const LoginPage = () => {
   const [step, setStep] = useState<'phone' | 'otp'>('phone');

@@ -1,10 +1,8 @@
-import { PrismaClient } from '@prisma/client';
 import { generateOTP, getOTPExpiry, isOTPExpired, generateReferralCode } from '../utils/otp';
 import { generateToken } from '../utils/jwt';
 import { smsProvider } from '../utils/sms';
 import { ledgerService } from './ledger.service';
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
 
 export class AuthService {
   

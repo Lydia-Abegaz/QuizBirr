@@ -1,8 +1,7 @@
 import crypto from 'crypto';
-import { PrismaClient, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { ledgerService } from './ledger.service';
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
 
 export class TelebirrService {
   private webhookSecret = process.env.TELEBIRR_WEBHOOK_SECRET || '';

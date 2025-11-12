@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { authApi, walletApi, referralApi } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
-import { Coins, TrendingUp, Gift, Zap, Target, Users, User } from 'lucide-react';
+import { Coins, TrendingUp, Gift, Zap, Target, Users, User } from '../components/icons';
 
 const HomePage = () => {
   const navigate = useNavigate();
