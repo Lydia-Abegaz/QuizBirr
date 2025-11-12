@@ -38,7 +38,24 @@ const app: Application = express();
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'https://quizbirr.netlify.app',
+      'https://quizzbirr.netlify.app',
+      process.env.FRONTEND_URL
+    ].filter(Boolean);
+    
+    if (allowedOrigins.some(allowedOrigin => origin.includes(allowedOrigin.replace(/https?:\/\//, '')))) {
+      return callback(null, true);
+    }
+    
+    return callback(null, true); // Allow all origins for now
+  },
   credentials: true
 }));
 // Capture rawBody for webhooks (HMAC verification)

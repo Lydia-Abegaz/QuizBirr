@@ -4,6 +4,9 @@ import { errorResponse } from '../utils/response';
 
 export interface AuthRequest extends Request {
   user?: JWTPayload;
+  body: any;
+  params: any;
+  query: any;
 }
 
 export const authenticate = async (
