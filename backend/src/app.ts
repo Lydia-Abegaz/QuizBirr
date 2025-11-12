@@ -50,7 +50,7 @@ app.use(cors({
       process.env.FRONTEND_URL
     ].filter(Boolean);
     
-    if (allowedOrigins.some(allowedOrigin => origin.includes(allowedOrigin.replace(/https?:\/\//, '')))) {
+    if (allowedOrigins.some(allowedOrigin => allowedOrigin && origin.includes(allowedOrigin.replace(/https?:\/\//, '')))) {
       return callback(null, true);
     }
     
