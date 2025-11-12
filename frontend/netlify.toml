@@ -1,9 +1,7 @@
 [build]
   command = "npm install --legacy-peer-deps && npm run build"
   publish = "dist"
-
-[build.environment]
-  VITE_API_URL = "https://quizbirr-api.onrender.com/api"
+  environment = { VITE_API_URL = "https://quizbirr-api.onrender.com/api" }
 
 # SPA fallback - redirect all routes to index.html
 [[redirects]]
