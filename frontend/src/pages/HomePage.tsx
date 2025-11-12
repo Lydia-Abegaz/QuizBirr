@@ -7,6 +7,8 @@ import { Coins, TrendingUp, Gift, Zap, Target, Users, User } from '../components
 const HomePage = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  // Determine if user is newly registered (no lastLogin)
+  const isNewUser = user && !user.lastLogin;
   
   const { data: balanceData } = useQuery({
     queryKey: ['balance'],
@@ -32,8 +34,12 @@ const HomePage = () => {
         <div className="backdrop-blur-xl bg-green-900/30 rounded-3xl p-8 border-2 border-green-500/40 shadow-2xl transform hover:scale-[1.02] transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-black text-green-400 mb-2 drop-shadow-lg">Welcome Back! 👋</h1>
-              <p className="text-green-300/90 text-lg font-semibold">Ready to win big today?</p>
+              <h1 className="text-4xl font-black text-green-400 mb-2 drop-shadow-lg">
+                {isNewUser ? 'Welcome!' : 'Welcome Back! 👋'}
+              </h1>
+              <p className="text-green-300/90 text-lg font-semibold">
+                {isNewUser ? 'Thanks for joining QuizBirr!' : 'Ready to win big today?'}
+              </p>
             </div>
             <div className="relative">
               <div className="absolute inset-0 bg-green-500 rounded-full blur-xl opacity-50 animate-pulse"></div>

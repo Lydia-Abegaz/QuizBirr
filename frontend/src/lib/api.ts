@@ -144,6 +144,9 @@ export const adminApi = {
     api.post<ApiResponse>(`/tasks/submissions/${submissionId}/review`, { approved, rejectionReason }),
   
   // Wallet management
+  getAllTransactions: (page: number = 1, limit: number = 50) =>
+    api.get<ApiResponse>('/wallet/admin/transactions', { params: { page, limit } }),
+  
   confirmDeposit: (transactionId: string) =>
     api.post<ApiResponse>(`/wallet/deposit/${transactionId}/confirm`),
   
