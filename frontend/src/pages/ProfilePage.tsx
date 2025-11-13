@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { quizApi } from '../lib/api';
-import { LogOut, Trophy, Target, TrendingUp } from '../components/icons';
+import { LogOut, Trophy, Target, TrendingUp } from 'lucide-react';
 
 const ProfilePage = () => {
   const navigate = useNavigate();

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Home, Wallet, ListTodo, Users, User } from './icons';
+import { Home, Wallet, ListTodo, Users, User } from 'lucide-react';
 
 const Layout: React.FC<{ page?: React.ReactElement }> = ({ page }) => {
   const location = useLocation();

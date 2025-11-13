@@ -1,16 +1,17 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { authApi } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
-import { Mail } from '../components/icons';
+import { Phone, RefreshCw, ShieldCheck } from 'lucide-react';
 
 const LoginPage = () => {
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
   
@@ -21,13 +22,14 @@ const LoginPage = () => {
   const onSendOTP = async (data: any) => {
     setLoading(true);
     setError('');
-    
+    setMessage('');
     try {
       const response = await authApi.sendOTP(data.phoneNumber);
       if (response.data.success) {
         setPhoneNumber(data.phoneNumber);
         setStep('otp');
         reset();
+        setMessage('OTP sent — check your phone');
       } else {
         setError(response.data.error || 'Failed to send OTP');
       }
@@ -41,7 +43,7 @@ const LoginPage = () => {
   const onVerifyOTP = async (data: any) => {
     setLoading(true);
     setError('');
-    
+    setMessage('');
     try {
       const response = await authApi.verifyOTP(phoneNumber, data.otp);
       if (response.data.success && response.data.data) {
@@ -53,6 +55,37 @@ const LoginPage = () => {
       }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Invalid OTP');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Resend timer (seconds)
+  const [resendTimer, setResendTimer] = useState(0);
+
+  useEffect(() => {
+    let t: any;
+    if (resendTimer > 0) {
+      t = setInterval(() => setResendTimer((s) => s - 1), 1000);
+    }
+    return () => clearInterval(t);
+  }, [resendTimer]);
+
+  const handleResend = async () => {
+    if (!phoneNumber) return;
+    setLoading(true);
+    setError('');
+    setMessage('');
+    try {
+      const resp = await authApi.sendOTP(phoneNumber);
+      if (resp.data.success) {
+        setMessage('OTP resent — check your phone');
+        setResendTimer(30);
+      } else {
+        setError(resp.data.error || 'Failed to resend OTP');
+      }
+    } catch (e: any) {
+      setError(e.response?.data?.error || 'Failed to resend OTP');
     } finally {
       setLoading(false);
     }
@@ -82,6 +115,11 @@ const LoginPage = () => {
             {error}
           </div>
         )}
+        {message && (
+          <div className="mb-6 p-4 backdrop-blur-xl bg-green-600/20 border-2 border-green-400/30 rounded-2xl text-green-200 text-sm font-semibold shadow-inner">
+            {message}
+          </div>
+        )}
         
         
         
@@ -91,7 +129,9 @@ const LoginPage = () => {
               <label className="block text-sm font-bold text-white mb-3 drop-shadow-lg">
                 📱 Phone Number
               </label>
-              <input
+              <div className="relative">
+                <Phone className="absolute left-4 top-4 w-6 h-6 text-white/80" />
+                <input
                 type="tel"
                 {...register('phoneNumber', {
                   required: 'Phone number is required',
@@ -100,7 +140,7 @@ const LoginPage = () => {
                     message: 'Enter a valid phone number (10-15 digits, optional +)'
                   }
                 })}
-                className="w-full px-6 py-4 backdrop-blur-xl bg-white/30 border-2 border-white/50 rounded-2xl focus:ring-4 focus:ring-white/30 focus:border-white text-white placeholder-white/60 font-bold text-lg shadow-xl transition-all"
+                className="w-full pl-14 px-6 py-4 backdrop-blur-xl bg-white/30 border-2 border-white/50 rounded-2xl focus:ring-4 focus:ring-white/30 focus:border-white text-white placeholder-white/60 font-bold text-lg shadow-xl transition-all"
                 placeholder="+251912345678"
               />
               {errors.phoneNumber && (
@@ -118,10 +158,15 @@ const LoginPage = () => {
           </form>
         ) : (
           <form onSubmit={handleSubmit(onVerifyOTP)} className="space-y-6">
-            <div>
-              <label className="block text-sm font-bold text-white mb-3 drop-shadow-lg text-center">
-                🔐 Enter Verification Code
-              </label>
+            <div className="text-center">
+              <div className="inline-flex items-center gap-3 mb-3">
+                <ShieldCheck className="w-6 h-6 text-green-300" />
+                <div>
+                  <p className="text-white font-black text-lg">Enter Verification Code</p>
+                  <p className="text-sm text-white/80">We sent a 6-digit code to <span className="font-bold">{phoneNumber}</span></p>
+                </div>
+              </div>
+
               <input
                 type="text"
                 {...register('otp', {
@@ -138,6 +183,13 @@ const LoginPage = () => {
               {errors.otp && (
                 <p className="mt-2 text-sm text-red-200 font-bold backdrop-blur-xl bg-red-500/20 px-3 py-2 rounded-lg text-center">{errors.otp.message as string}</p>
               )}
+
+              <div className="mt-3 flex items-center justify-center gap-3">
+                <button type="button" onClick={handleResend} disabled={resendTimer>0 || loading} className="text-sm text-white/90 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all disabled:opacity-50">
+                  <RefreshCw className="inline w-4 h-4 mr-2" />
+                  {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend OTP'}
+                </button>
+              </div>
             </div>
             
             <button
