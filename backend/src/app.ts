@@ -35,29 +35,55 @@ const env = envSchema.parse(process.env) as EnvSchema;
 // Initialize Express app
 const app: Application = express();
 
+// Import security middleware
+import { deviceFingerprint, suspiciousActivityDetector, validateRequestSize } from './middleware/simple';
+
 // Middleware
-app.use(helmet());
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    const allowedOrigins = [
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+}));
+
+// Enhanced CORS for production
+const allowedOrigins = process.env.NODE_ENV === 'production' 
+  ? [process.env.FRONTEND_URL].filter(Boolean)
+  : [
       'http://localhost:3000',
       'http://localhost:5173',
       'https://quizbirr.netlify.app',
       'https://quizzbirr.netlify.app',
       process.env.FRONTEND_URL
     ].filter(Boolean);
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
     
     if (allowedOrigins.some(allowedOrigin => allowedOrigin && origin.includes(allowedOrigin.replace(/https?:\/\//, '')))) {
       return callback(null, true);
     }
     
-    return callback(null, true); // Allow all origins for now
+    // In development, allow all origins
+    if (process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    
+    return callback(new Error('Not allowed by CORS'));
   },
   credentials: true
 }));
+
+// Security middleware
+app.use(validateRequestSize);
+app.use(deviceFingerprint);
+app.use(suspiciousActivityDetector);
 // Capture rawBody for webhooks (HMAC verification)
 app.use(express.json({
   verify: (req: any, _res, buf) => {

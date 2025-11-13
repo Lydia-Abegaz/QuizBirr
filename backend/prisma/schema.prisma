@@ -34,6 +34,9 @@ model User {
   quizAttempts    QuizAttempt[]
   taskSubmissions TaskSubmission[]
   dailyLogins     DailyLogin[]
+  mysteryBoxes    MysteryBox[]
+  fraudAlerts     FraudAlert[]
+  reviewedAlerts  FraudAlert[]   @relation("ReviewedAlerts")
   referrals       User[]         @relation("UserReferrals")
   referrer        User?          @relation("UserReferrals", fields: [referredBy], references: [referralCode])
   processedTasks  TaskSubmission[] @relation("ProcessedTasks")
@@ -193,4 +196,39 @@ model LedgerLine {
   account    Account     @relation(fields: [accountId], references: [id])
 
   @@map("ledger_lines")
+}
+
+// Mystery Box model for weekly points-to-money conversion
+model MysteryBox {
+  id            String    @id @default(uuid())
+  userId        String    @map("user_id")
+  pointsSpent   Int       @map("points_spent")
+  rewardType    String    @map("reward_type") // small, medium, large, jackpot
+  rewardAmount  Decimal   @db.Decimal(10, 2) @map("reward_amount")
+  openedAt      DateTime  @default(now()) @map("opened_at")
+  
+  // Relations
+  user          User      @relation(fields: [userId], references: [id])
+  
+  @@map("mystery_boxes")
+}
+
+// Fraud Alert model for security monitoring
+model FraudAlert {
+  id            String    @id @default(uuid())
+  userId        String?   @map("user_id")
+  type          String    // suspicious_quiz_pattern, rapid_transactions, etc.
+  severity      String    // low, medium, high, critical
+  description   String
+  metadata      Json?
+  status        String    @default("pending") // pending, reviewed, resolved, false_positive
+  reviewedAt    DateTime? @map("reviewed_at")
+  reviewedBy    String?   @map("reviewed_by")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  
+  // Relations
+  user          User?     @relation(fields: [userId], references: [id])
+  reviewer      User?     @relation("ReviewedAlerts", fields: [reviewedBy], references: [id])
+  
+  @@map("fraud_alerts")
 }
